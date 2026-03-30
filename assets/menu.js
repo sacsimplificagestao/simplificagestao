@@ -4,21 +4,21 @@ async function getUserAndBusiness() {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    window.location.href = 'login.html'
+    window.location.href = 'index.html'
     return null
   }
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, full_name, email')
+    .select('*')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   const { data: business } = await supabase
     .from('businesses')
-    .select('id, name')
-    .eq('user_id', user.id)
-    .single()
+    .select('*')
+    .eq('owner_user_id', user.id)
+    .maybeSingle()
 
   return { user, profile, business }
 }
@@ -53,7 +53,7 @@ function createMenuHTML(userName = 'Usuário', businessName = 'Meu Negócio') {
             <div class="w-11 h-11 rounded-2xl bg-green-600 text-white flex items-center justify-center font-bold text-lg shadow">
               S
             </div>
-            <div>
+            <div class="min-w-0">
               <h1 class="text-lg font-bold text-gray-900">Simplifica Gestão</h1>
               <p class="text-sm text-gray-500 truncate">${businessName}</p>
             </div>
@@ -118,7 +118,7 @@ function bindMenuEvents() {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       await supabase.auth.signOut()
-      window.location.href = 'login.html'
+      window.location.href = 'index.html'
     })
   }
 }
@@ -133,8 +133,8 @@ export async function renderMenu(pageTitle = 'Painel') {
   if (!data) return
 
   menuContainer.innerHTML = createMenuHTML(
-    data.profile?.full_name || data.user?.email || 'Usuário',
-    data.business?.name || 'Meu Negócio'
+    data.profile?.nome || data.profile?.full_name || data.user?.email || 'Usuário',
+    data.business?.nome || data.business?.name || 'Meu Negócio'
   )
 
   if (mobileTopbarContainer) {
