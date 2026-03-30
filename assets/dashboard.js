@@ -1,3 +1,5 @@
+import { renderMenu } from './menu.js'
+
 let supabase = null
 let currentUser = null
 let currentBusiness = null
@@ -48,12 +50,14 @@ function showTopMessage(message, type = 'success') {
 }
 
 function openModal(modal) {
+  if (!modal) return
   modal.classList.remove('hidden')
   modal.classList.add('flex')
   document.body.classList.add('overflow-hidden')
 }
 
 function closeModal(modal) {
+  if (!modal) return
   modal.classList.add('hidden')
   modal.classList.remove('flex')
   document.body.classList.remove('overflow-hidden')
@@ -161,16 +165,18 @@ function renderExpenses(expenses) {
   }
 
   container.innerHTML = expenses.map(expense => {
-    const horario = new Date(expense.created_at).toLocaleTimeString('pt-BR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
+    const horario = expense.created_at
+      ? new Date(expense.created_at).toLocaleTimeString('pt-BR', {
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      : '--:--'
 
     return `
       <div class="border border-gray-200 rounded-2xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
           <h4 class="font-semibold text-lg">${expense.descricao || 'Gasto sem descrição'}</h4>
-          <p class="text-gray-500 text-sm">Categoria: ${expense.categoria} • ${horario}</p>
+          <p class="text-gray-500 text-sm">Categoria: ${expense.categoria || 'Sem categoria'} • ${horario}</p>
         </div>
         <div class="text-left md:text-right">
           <p class="font-bold text-lg">${formatCurrency(expense.valor)}</p>
@@ -198,7 +204,7 @@ function renderCategories(expenses) {
   })
 
   const sorted = Object.entries(grouped).sort((a, b) => b[1] - a[1])
-  const maxValue = sorted[0][1] || 1
+  const maxValue = sorted[0]?.[1] || 1
 
   container.innerHTML = sorted.map(([category, total]) => {
     const width = Math.max(8, Math.round((total / maxValue) * 100))
@@ -223,8 +229,8 @@ async function loadDashboard() {
 
   currentBusiness = business
 
-  setText('user-name', profile?.nome || currentUser.email || 'Usuário')
-  setText('business-name', business?.nome || 'Seu negócio')
+  setText('user-name', profile?.nome || profile?.full_name || currentUser.email || 'Usuário')
+  setText('business-name', business?.nome || business?.name || 'Seu negócio')
   setText('today-date', formatDateBR(new Date()))
 
   if (!business) {
@@ -234,7 +240,10 @@ async function loadDashboard() {
 
   const today = getTodayISO()
 
-  const [{ data: expenses, error: expensesError }, { data: cashEntries, error: cashError }] = await Promise.all([
+  const [
+    { data: expenses, error: expensesError },
+    { data: cashEntries, error: cashError }
+  ] = await Promise.all([
     supabase
       .from('expenses')
       .select('*')
@@ -307,11 +316,6 @@ async function loadDashboard() {
   renderCategories(safeExpenses)
 }
 
-async function handleLogout() {
-  await supabase.auth.signOut()
-  window.location.href = 'index.html'
-}
-
 function bindModalEvents() {
   const expenseModal = document.getElementById('expense-modal')
   const cashModal = document.getElementById('cash-modal')
@@ -328,8 +332,8 @@ function bindModalEvents() {
   const expenseDate = document.getElementById('expense-data')
   const cashDate = document.getElementById('cash-data')
 
-  expenseDate.value = getTodayISO()
-  cashDate.value = getTodayISO()
+  if (expenseDate) expenseDate.value = getTodayISO()
+  if (cashDate) cashDate.value = getTodayISO()
 
   addExpenseBtn?.addEventListener('click', () => openModal(expenseModal))
   openExpenseSecondary?.addEventListener('click', () => openModal(expenseModal))
@@ -359,6 +363,11 @@ function bindFormEvents() {
 
 async function handleExpenseSubmit(e) {
   e.preventDefault()
+
+  if (!currentBusiness) {
+    showTopMessage('Empresa não encontrada.', 'error')
+    return
+  }
 
   const descricao = document.getElementById('expense-descricao').value.trim()
   const categoria = document.getElementById('expense-categoria').value
@@ -401,6 +410,11 @@ async function handleExpenseSubmit(e) {
 async function handleCashSubmit(e) {
   e.preventDefault()
 
+  if (!currentBusiness) {
+    showTopMessage('Empresa não encontrada.', 'error')
+    return
+  }
+
   const valor = document.getElementById('cash-valor').value
   const observacao = document.getElementById('cash-observacao').value.trim()
   const dataReferencia = document.getElementById('cash-data').value
@@ -437,10 +451,6 @@ async function handleCashSubmit(e) {
   await loadDashboard()
 }
 
-function bindGeneralEvents() {
-  document.getElementById('logout-btn')?.addEventListener('click', handleLogout)
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
   const loaded = await waitForSupabase()
 
@@ -452,7 +462,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   currentUser = await requireUser()
   if (!currentUser) return
 
-  bindGeneralEvents()
+  await renderMenu('Dashboard')
   bindModalEvents()
   bindFormEvents()
   await loadDashboard()
