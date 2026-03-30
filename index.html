@@ -1,155 +1,255 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Simplifica Gestão</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body class="min-h-screen bg-gradient-to-br from-white via-green-50 to-white flex items-center justify-center p-6">
 
   <div class="w-full max-w-md">
-
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold mb-2">Simplifica Gestão</h1>
       <p class="text-gray-500">Controle simples, lucro claro</p>
     </div>
 
     <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-200">
-
-      <!-- TABS -->
       <div class="flex mb-6 bg-gray-100 rounded-xl p-1">
-        <button type="button" id="tab-login" class="w-full py-2 rounded-lg font-semibold bg-white shadow">
+        <button type="button" id="tab-login" class="flex-1 py-2 rounded-lg font-semibold bg-white shadow text-gray-900">
           Entrar
         </button>
-        <button type="button" id="tab-register" class="w-full py-2 rounded-lg font-semibold text-gray-500">
+        <button type="button" id="tab-register" class="flex-1 py-2 rounded-lg font-semibold text-gray-500">
           Criar conta
         </button>
       </div>
 
-      <!-- LOGIN -->
+      <div id="message-box" class="hidden mb-4 rounded-xl px-4 py-3 text-sm"></div>
+
       <form id="login-form" class="space-y-4">
+        <input
+          id="login-email"
+          type="email"
+          placeholder="Seu email"
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-green-600"
+        />
 
-        <input id="login-email" type="email" placeholder="Seu email"
-          class="w-full border border-gray-300 rounded-xl px-4 py-3">
+        <input
+          id="login-password"
+          type="password"
+          placeholder="Senha"
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-green-600"
+        />
 
-        <input id="login-password" type="password" placeholder="Senha"
-          class="w-full border border-gray-300 rounded-xl px-4 py-3">
-
-        <button type="submit"
-          class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700">
+        <button
+          id="login-submit"
+          type="submit"
+          class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition"
+        >
           Entrar
         </button>
       </form>
 
-      <!-- REGISTER -->
       <form id="register-form" class="space-y-4 hidden">
+        <input
+          id="register-name"
+          type="text"
+          placeholder="Seu nome"
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-green-600"
+        />
 
-        <input id="register-name" type="text" placeholder="Seu nome"
-          class="w-full border border-gray-300 rounded-xl px-4 py-3">
+        <input
+          id="register-email"
+          type="email"
+          placeholder="Seu email"
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-green-600"
+        />
 
-        <input id="register-email" type="email" placeholder="Seu email"
-          class="w-full border border-gray-300 rounded-xl px-4 py-3">
+        <input
+          id="register-password"
+          type="password"
+          placeholder="Senha"
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-green-600"
+        />
 
-        <input id="register-password" type="password" placeholder="Senha"
-          class="w-full border border-gray-300 rounded-xl px-4 py-3">
+        <input
+          id="register-business"
+          type="text"
+          placeholder="Nome do negócio"
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-green-600"
+        />
 
-        <input id="register-business" type="text" placeholder="Nome do negócio"
-          class="w-full border border-gray-300 rounded-xl px-4 py-3">
-
-        <button type="submit"
-          class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700">
+        <button
+          id="register-submit"
+          type="submit"
+          class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition"
+        >
           Criar conta
         </button>
       </form>
-
     </div>
-
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-  <script>
-    const supabase = window.supabase.createClient(
+    const supabase = createClient(
       'https://jtcwrrcozunjskuwswmq.supabase.co',
       'sb_publishable_m4XaI4R9Ixr6Kuka4Wz9Pw_jnsavoZU'
     )
 
     const loginTab = document.getElementById('tab-login')
     const registerTab = document.getElementById('tab-register')
-
     const loginForm = document.getElementById('login-form')
     const registerForm = document.getElementById('register-form')
+    const messageBox = document.getElementById('message-box')
+    const loginSubmit = document.getElementById('login-submit')
+    const registerSubmit = document.getElementById('register-submit')
 
-    loginTab.onclick = () => {
+    function showMessage(text, type = 'error') {
+      messageBox.textContent = text
+      messageBox.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'border-red-200', 'bg-green-50', 'text-green-700', 'border-green-200')
+      messageBox.classList.add('border')
+
+      if (type === 'success') {
+        messageBox.classList.add('bg-green-50', 'text-green-700', 'border-green-200')
+      } else {
+        messageBox.classList.add('bg-red-50', 'text-red-700', 'border-red-200')
+      }
+    }
+
+    function clearMessage() {
+      messageBox.classList.add('hidden')
+      messageBox.textContent = ''
+    }
+
+    function activateLoginTab() {
+      clearMessage()
       loginForm.classList.remove('hidden')
       registerForm.classList.add('hidden')
-      loginTab.classList.add('bg-white','shadow')
-      registerTab.classList.remove('bg-white','shadow')
+
+      loginTab.classList.add('bg-white', 'shadow', 'text-gray-900')
+      loginTab.classList.remove('text-gray-500')
+
+      registerTab.classList.remove('bg-white', 'shadow', 'text-gray-900')
+      registerTab.classList.add('text-gray-500')
     }
 
-    registerTab.onclick = () => {
+    function activateRegisterTab() {
+      clearMessage()
       loginForm.classList.add('hidden')
       registerForm.classList.remove('hidden')
-      registerTab.classList.add('bg-white','shadow')
-      loginTab.classList.remove('bg-white','shadow')
+
+      registerTab.classList.add('bg-white', 'shadow', 'text-gray-900')
+      registerTab.classList.remove('text-gray-500')
+
+      loginTab.classList.remove('bg-white', 'shadow', 'text-gray-900')
+      loginTab.classList.add('text-gray-500')
     }
+
+    loginTab.addEventListener('click', activateLoginTab)
+    registerTab.addEventListener('click', activateRegisterTab)
 
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault()
+      clearMessage()
 
-      const email = document.getElementById('login-email').value
+      const email = document.getElementById('login-email').value.trim()
       const password = document.getElementById('login-password').value
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
-
-      if (error) {
-        alert(error.message)
+      if (!email || !password) {
+        showMessage('Preencha email e senha.')
         return
       }
 
-      window.location.href = 'dashboard.html'
+      loginSubmit.disabled = true
+      loginSubmit.textContent = 'Entrando...'
+
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+        if (error) {
+          showMessage(error.message)
+          return
+        }
+
+        window.location.href = 'dashboard.html'
+      } catch (err) {
+        showMessage('Erro inesperado ao entrar.')
+      } finally {
+        loginSubmit.disabled = false
+        loginSubmit.textContent = 'Entrar'
+      }
     })
 
     registerForm.addEventListener('submit', async (e) => {
       e.preventDefault()
+      clearMessage()
 
-      const nome = document.getElementById('register-name').value
-      const email = document.getElementById('register-email').value
+      const nome = document.getElementById('register-name').value.trim()
+      const email = document.getElementById('register-email').value.trim()
       const password = document.getElementById('register-password').value
-      const empresa = document.getElementById('register-business').value
+      const empresa = document.getElementById('register-business').value.trim()
 
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password
-      })
-
-      if (error) {
-        alert(error.message)
+      if (!nome || !email || !password || !empresa) {
+        showMessage('Preencha todos os campos.')
         return
       }
 
-      const user = data.user
+      registerSubmit.disabled = true
+      registerSubmit.textContent = 'Criando conta...'
 
-      await supabase.from('profiles').insert({
-        id: user.id,
-        nome,
-        email
-      })
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password
+        })
 
-      await supabase.from('businesses').insert({
-        owner_user_id: user.id,
-        nome: empresa
-      })
+        if (error) {
+          showMessage(error.message)
+          return
+        }
 
-      alert('Conta criada! Agora faça login.')
-      window.location.reload()
+        const user = data.user
+
+        if (!user) {
+          showMessage('Não foi possível obter o usuário criado.')
+          return
+        }
+
+        const { error: profileError } = await supabase.from('profiles').insert({
+          id: user.id,
+          nome,
+          email
+        })
+
+        if (profileError) {
+          showMessage('Erro ao criar perfil: ' + profileError.message)
+          return
+        }
+
+        const { error: businessError } = await supabase.from('businesses').insert({
+          owner_user_id: user.id,
+          nome: empresa
+        })
+
+        if (businessError) {
+          showMessage('Erro ao criar empresa: ' + businessError.message)
+          return
+        }
+
+        showMessage('Conta criada com sucesso. Agora faça login.', 'success')
+        registerForm.reset()
+        activateLoginTab()
+      } catch (err) {
+        showMessage('Erro inesperado ao criar conta.')
+      } finally {
+        registerSubmit.disabled = false
+        registerSubmit.textContent = 'Criar conta'
+      }
     })
-  </script>
 
+    activateLoginTab()
+  </script>
 </body>
 </html>
