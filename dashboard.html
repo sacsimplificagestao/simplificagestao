@@ -16,10 +16,10 @@
       </div>
 
       <div class="flex items-center gap-3">
-        <button class="px-4 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 transition">
+        <button id="btn-relatorios" class="px-4 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 transition">
           Relatórios
         </button>
-        <button class="px-4 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition">
+        <button id="btn-logout" class="px-4 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition">
           Sair
         </button>
       </div>
@@ -31,39 +31,43 @@
     <section class="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
       <div>
         <p class="text-sm uppercase tracking-wide text-green-600 font-semibold mb-2">Dashboard</p>
-        <h2 class="text-3xl md:text-4xl font-bold mb-2">Boa noite, Felipe 👋</h2>
-        <p class="text-gray-600">Veja como seu negócio está performando hoje.</p>
+        <h2 class="text-3xl md:text-4xl font-bold mb-2">
+          Boa noite, <span id="user-name">Usuário</span> 👋
+        </h2>
+        <p class="text-gray-600">
+          Empresa: <span id="business-name">Carregando...</span>
+        </p>
       </div>
 
       <div class="bg-white border border-gray-200 rounded-2xl px-5 py-4 shadow-sm">
         <p class="text-sm text-gray-500">Hoje</p>
-        <p class="text-lg font-semibold">30 de março de 2026</p>
+        <p id="today-date" class="text-lg font-semibold">--</p>
       </div>
     </section>
 
     <section class="grid md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
       <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
         <p class="text-sm text-gray-500 mb-2">Faturamento do dia</p>
-        <h3 class="text-3xl font-bold">R$ 4.850,00</h3>
-        <p class="text-sm text-green-600 mt-2">+12% em relação a ontem</p>
+        <h3 id="card-faturamento" class="text-3xl font-bold">R$ 0,00</h3>
+        <p class="text-sm text-green-600 mt-2">Entradas registradas hoje</p>
       </div>
 
       <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
         <p class="text-sm text-gray-500 mb-2">Gastos do dia</p>
-        <h3 class="text-3xl font-bold">R$ 1.940,00</h3>
-        <p class="text-sm text-gray-500 mt-2">8 lançamentos registrados</p>
+        <h3 id="card-gastos" class="text-3xl font-bold">R$ 0,00</h3>
+        <p id="card-gastos-info" class="text-sm text-gray-500 mt-2">0 lançamentos registrados</p>
       </div>
 
       <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
         <p class="text-sm text-gray-500 mb-2">Lucro estimado</p>
-        <h3 class="text-3xl font-bold text-green-600">R$ 2.910,00</h3>
-        <p class="text-sm text-gray-500 mt-2">Após custos lançados</p>
+        <h3 id="card-lucro" class="text-3xl font-bold text-green-600">R$ 0,00</h3>
+        <p class="text-sm text-gray-500 mt-2">Faturamento - gastos</p>
       </div>
 
       <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
         <p class="text-sm text-gray-500 mb-2">Margem do dia</p>
-        <h3 class="text-3xl font-bold">60%</h3>
-        <p class="text-sm text-amber-600 mt-2">Atenção aos custos com bebidas</p>
+        <h3 id="card-margem" class="text-3xl font-bold">0%</h3>
+        <p id="card-margem-info" class="text-sm text-gray-500 mt-2">Atualizado automaticamente</p>
       </div>
     </section>
 
@@ -76,54 +80,14 @@
             <p class="text-gray-500 text-sm">Custos registrados hoje</p>
           </div>
 
-          <button class="px-4 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition">
+          <button id="btn-add-expense" class="px-4 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition">
             + Adicionar gasto
           </button>
         </div>
 
-        <div class="space-y-4">
-          <div class="border border-gray-200 rounded-2xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div>
-              <h4 class="font-semibold text-lg">Atacadão Bahia</h4>
-              <p class="text-gray-500 text-sm">Categoria: Estoque • 08:42</p>
-            </div>
-            <div class="text-left md:text-right">
-              <p class="font-bold text-lg">R$ 680,00</p>
-              <span class="inline-block mt-1 text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Nota lançada</span>
-            </div>
-          </div>
-
-          <div class="border border-gray-200 rounded-2xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div>
-              <h4 class="font-semibold text-lg">Distribuidora Central</h4>
-              <p class="text-gray-500 text-sm">Categoria: Bebidas • 10:15</p>
-            </div>
-            <div class="text-left md:text-right">
-              <p class="font-bold text-lg">R$ 490,00</p>
-              <span class="inline-block mt-1 text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Nota lançada</span>
-            </div>
-          </div>
-
-          <div class="border border-gray-200 rounded-2xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div>
-              <h4 class="font-semibold text-lg">Casa das Carnes</h4>
-              <p class="text-gray-500 text-sm">Categoria: Proteínas • 11:28</p>
-            </div>
-            <div class="text-left md:text-right">
-              <p class="font-bold text-lg">R$ 530,00</p>
-              <span class="inline-block mt-1 text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Nota lançada</span>
-            </div>
-          </div>
-
-          <div class="border border-gray-200 rounded-2xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div>
-              <h4 class="font-semibold text-lg">Mercado do Bairro</h4>
-              <p class="text-gray-500 text-sm">Categoria: Limpeza • 13:05</p>
-            </div>
-            <div class="text-left md:text-right">
-              <p class="font-bold text-lg">R$ 240,00</p>
-              <span class="inline-block mt-1 text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Nota lançada</span>
-            </div>
+        <div id="expenses-list" class="space-y-4">
+          <div class="border border-dashed border-gray-300 rounded-2xl p-6 text-center text-gray-500">
+            Nenhum gasto lançado ainda.
           </div>
         </div>
       </div>
@@ -132,11 +96,8 @@
         <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
           <h3 class="text-2xl font-bold mb-4">Resumo do dia</h3>
           <div class="bg-green-50 border border-green-100 rounded-2xl p-4">
-            <p class="text-gray-700 leading-relaxed">
-              Hoje seu negócio faturou <span class="font-bold">R$ 4.850,00</span>, teve
-              <span class="font-bold">R$ 1.940,00</span> em custos registrados e está com
-              lucro estimado de <span class="font-bold text-green-700">R$ 2.910,00</span>.
-              Seu maior gasto até agora foi com <span class="font-bold">estoque e bebidas</span>.
+            <p id="summary-text" class="text-gray-700 leading-relaxed">
+              Assim que você registrar faturamento e gastos, eu te mostro um resumo automático aqui.
             </p>
           </div>
         </div>
@@ -144,15 +105,15 @@
         <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
           <h3 class="text-2xl font-bold mb-4">Ações rápidas</h3>
           <div class="grid gap-3">
-            <button class="w-full px-4 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition">
+            <button id="btn-add-cash" class="w-full px-4 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition">
               Registrar faturamento
             </button>
 
-            <button class="w-full px-4 py-3 rounded-xl border border-gray-300 hover:bg-gray-100 transition font-semibold">
+            <button id="btn-send-note" class="w-full px-4 py-3 rounded-xl border border-gray-300 hover:bg-gray-100 transition font-semibold">
               Enviar nota fiscal
             </button>
 
-            <button class="w-full px-4 py-3 rounded-xl border border-gray-300 hover:bg-gray-100 transition font-semibold">
+            <button id="btn-close-day" class="w-full px-4 py-3 rounded-xl border border-gray-300 hover:bg-gray-100 transition font-semibold">
               Fechar caixa do dia
             </button>
           </div>
@@ -161,9 +122,8 @@
         <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
           <h3 class="text-2xl font-bold mb-4">Ponto de atenção</h3>
           <div class="p-4 rounded-2xl bg-amber-50 border border-amber-100">
-            <p class="text-gray-700">
-              Os custos com bebidas representam <span class="font-bold">25%</span> dos seus gastos hoje.
-              Vale revisar preço de venda ou negociação com fornecedor.
+            <p id="attention-text" class="text-gray-700">
+              Ainda não há dados suficientes para gerar alerta.
             </p>
           </div>
         </div>
@@ -173,46 +133,8 @@
     <section class="grid lg:grid-cols-2 gap-6">
       <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
         <h3 class="text-2xl font-bold mb-4">Categorias que mais pesaram</h3>
-        <div class="space-y-4">
-          <div>
-            <div class="flex justify-between mb-1 text-sm">
-              <span>Estoque</span>
-              <span>R$ 680,00</span>
-            </div>
-            <div class="w-full bg-gray-100 rounded-full h-3">
-              <div class="bg-green-600 h-3 rounded-full" style="width: 70%;"></div>
-            </div>
-          </div>
-
-          <div>
-            <div class="flex justify-between mb-1 text-sm">
-              <span>Bebidas</span>
-              <span>R$ 490,00</span>
-            </div>
-            <div class="w-full bg-gray-100 rounded-full h-3">
-              <div class="bg-green-500 h-3 rounded-full" style="width: 52%;"></div>
-            </div>
-          </div>
-
-          <div>
-            <div class="flex justify-between mb-1 text-sm">
-              <span>Proteínas</span>
-              <span>R$ 530,00</span>
-            </div>
-            <div class="w-full bg-gray-100 rounded-full h-3">
-              <div class="bg-green-400 h-3 rounded-full" style="width: 58%;"></div>
-            </div>
-          </div>
-
-          <div>
-            <div class="flex justify-between mb-1 text-sm">
-              <span>Limpeza</span>
-              <span>R$ 240,00</span>
-            </div>
-            <div class="w-full bg-gray-100 rounded-full h-3">
-              <div class="bg-green-300 h-3 rounded-full" style="width: 28%;"></div>
-            </div>
-          </div>
+        <div id="categories-list" class="space-y-4">
+          <div class="text-gray-500">Nenhuma categoria registrada ainda.</div>
         </div>
       </div>
 
@@ -222,31 +144,33 @@
         <div class="space-y-4">
           <div class="flex items-center justify-between py-3 border-b border-gray-100">
             <span class="text-gray-600">Total faturado</span>
-            <span class="font-bold">R$ 4.850,00</span>
+            <span id="quick-faturado" class="font-bold">R$ 0,00</span>
           </div>
 
           <div class="flex items-center justify-between py-3 border-b border-gray-100">
             <span class="text-gray-600">Total gasto</span>
-            <span class="font-bold">R$ 1.940,00</span>
+            <span id="quick-gasto" class="font-bold">R$ 0,00</span>
           </div>
 
           <div class="flex items-center justify-between py-3 border-b border-gray-100">
             <span class="text-gray-600">Lucro estimado</span>
-            <span class="font-bold text-green-600">R$ 2.910,00</span>
+            <span id="quick-lucro" class="font-bold text-green-600">R$ 0,00</span>
           </div>
 
           <div class="flex items-center justify-between py-3">
             <span class="text-gray-600">Margem</span>
-            <span class="font-bold">60%</span>
+            <span id="quick-margem" class="font-bold">0%</span>
           </div>
         </div>
 
-        <button class="w-full mt-6 px-4 py-4 rounded-xl bg-green-600 text-white text-lg font-semibold hover:bg-green-700 transition">
+        <button id="btn-close-cash" class="w-full mt-6 px-4 py-4 rounded-xl bg-green-600 text-white text-lg font-semibold hover:bg-green-700 transition">
           Fechar caixa agora
         </button>
       </div>
     </section>
   </main>
 
+  <script type="module" src="assets/supabase.js"></script>
+  <script type="module" src="assets/dashboard.js"></script>
 </body>
 </html>
