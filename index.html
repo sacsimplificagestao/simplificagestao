@@ -11,13 +11,11 @@
 
   <div class="w-full max-w-md">
 
-    <!-- LOGO / TÍTULO -->
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold mb-2">Simplifica Gestão</h1>
       <p class="text-gray-500">Controle simples, lucro claro</p>
     </div>
 
-    <!-- CARD -->
     <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-200">
 
       <!-- TABS -->
@@ -34,13 +32,13 @@
       <form id="login-form" class="space-y-4">
 
         <input id="login-email" type="email" placeholder="Seu email"
-          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-600">
+          class="w-full border border-gray-300 rounded-xl px-4 py-3">
 
         <input id="login-password" type="password" placeholder="Senha"
-          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-600">
+          class="w-full border border-gray-300 rounded-xl px-4 py-3">
 
         <button type="submit"
-          class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition">
+          class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700">
           Entrar
         </button>
       </form>
@@ -49,19 +47,19 @@
       <form id="register-form" class="space-y-4 hidden">
 
         <input id="register-name" type="text" placeholder="Seu nome"
-          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-600">
+          class="w-full border border-gray-300 rounded-xl px-4 py-3">
 
         <input id="register-email" type="email" placeholder="Seu email"
-          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-600">
+          class="w-full border border-gray-300 rounded-xl px-4 py-3">
 
         <input id="register-password" type="password" placeholder="Senha"
-          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-600">
+          class="w-full border border-gray-300 rounded-xl px-4 py-3">
 
-        <input id="register-business" type="text" placeholder="Nome do seu negócio"
-          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-600">
+        <input id="register-business" type="text" placeholder="Nome do negócio"
+          class="w-full border border-gray-300 rounded-xl px-4 py-3">
 
         <button type="submit"
-          class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition">
+          class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700">
           Criar conta
         </button>
       </form>
@@ -71,10 +69,14 @@
   </div>
 
   <!-- SCRIPTS -->
-  <script type="module" src="assets/supabase.js"></script>
-  <script type="module" src="assets/auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
   <script>
+    const supabase = window.supabase.createClient(
+      'https://jtcwrrcozunjskuwswmq.supabase.co',
+      'sb_publishable_m4XaI4R9Ixr6Kuka4Wz9Pw_jnsavoZU'
+    )
+
     const loginTab = document.getElementById('tab-login')
     const registerTab = document.getElementById('tab-register')
 
@@ -84,17 +86,15 @@
     loginTab.onclick = () => {
       loginForm.classList.remove('hidden')
       registerForm.classList.add('hidden')
-
-      loginTab.classList.add('bg-white', 'shadow')
-      registerTab.classList.remove('bg-white', 'shadow')
+      loginTab.classList.add('bg-white')
+      registerTab.classList.remove('bg-white')
     }
 
     registerTab.onclick = () => {
       loginForm.classList.add('hidden')
       registerForm.classList.remove('hidden')
-
-      registerTab.classList.add('bg-white', 'shadow')
-      loginTab.classList.remove('bg-white', 'shadow')
+      registerTab.classList.add('bg-white')
+      loginTab.classList.remove('bg-white')
     }
 
     loginForm.addEventListener('submit', async (e) => {
@@ -103,18 +103,52 @@
       const email = document.getElementById('login-email').value
       const password = document.getElementById('login-password').value
 
-      await window.signIn(email, password)
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+
+      if (error) {
+        alert(error.message)
+        return
+      }
+
+      window.location.href = 'dashboard.html'
     })
 
     registerForm.addEventListener('submit', async (e) => {
       e.preventDefault()
 
-      const name = document.getElementById('register-name').value
+      const nome = document.getElementById('register-name').value
       const email = document.getElementById('register-email').value
       const password = document.getElementById('register-password').value
-      const business = document.getElementById('register-business').value
+      const empresa = document.getElementById('register-business').value
 
-      await window.signUp(email, password, name, business)
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password
+      })
+
+      if (error) {
+        alert(error.message)
+        return
+      }
+
+      const user = data.user
+
+      await supabase.from('profiles').insert({
+        id: user.id,
+        nome,
+        email
+      })
+
+      await supabase.from('businesses').insert({
+        owner_user_id: user.id,
+        nome: empresa
+      })
+
+      alert('Conta criada! Agora faça login.')
+      window.location.reload()
     })
   </script>
 
