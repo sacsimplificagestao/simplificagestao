@@ -1,4 +1,6 @@
-const supabase = window.supabase
+let supabase = null
+let currentUser = null
+let currentBusiness = null
 
 function formatCurrency(value) {
   return Number(value || 0).toLocaleString('pt-BR', {
@@ -24,6 +26,50 @@ function setText(id, value) {
   if (el) el.textContent = value
 }
 
+function showTopMessage(message, type = 'success') {
+  const box = document.getElementById('top-message')
+  if (!box) return
+
+  box.textContent = message
+  box.className = 'mb-6 rounded-2xl px-4 py-4 text-sm border'
+
+  if (type === 'success') {
+    box.classList.add('bg-green-50', 'text-green-700', 'border-green-200')
+  } else {
+    box.classList.add('bg-red-50', 'text-red-700', 'border-red-200')
+  }
+
+  box.classList.remove('hidden')
+
+  clearTimeout(box._hideTimer)
+  box._hideTimer = setTimeout(() => {
+    box.classList.add('hidden')
+  }, 3500)
+}
+
+function openModal(modal) {
+  modal.classList.remove('hidden')
+  modal.classList.add('flex')
+  document.body.classList.add('overflow-hidden')
+}
+
+function closeModal(modal) {
+  modal.classList.add('hidden')
+  modal.classList.remove('flex')
+  document.body.classList.remove('overflow-hidden')
+}
+
+async function waitForSupabase() {
+  for (let i = 0; i < 50; i++) {
+    if (window.supabase) {
+      supabase = window.supabase
+      return true
+    }
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+  return false
+}
+
 async function requireUser() {
   const { data, error } = await supabase.auth.getUser()
 
@@ -42,11 +88,7 @@ async function getProfile(userId) {
     .eq('id', userId)
     .maybeSingle()
 
-  if (error) {
-    console.error('Erro ao buscar profile:', error.message)
-    return null
-  }
-
+  if (error) return null
   return data
 }
 
@@ -57,11 +99,7 @@ async function getBusiness(userId) {
     .eq('owner_user_id', userId)
     .maybeSingle()
 
-  if (error) {
-    console.error('Erro ao buscar empresa:', error.message)
-    return null
-  }
-
+  if (error) return null
   return data
 }
 
@@ -98,7 +136,7 @@ function buildAttention(totalCash, totalExpenses, margin, topCategory, topCatego
     return 'Você registrou custos, mas ainda não lançou entradas. Registre o faturamento para visualizar o lucro real.'
   }
 
-  if (margin < 20) {
+  if (Number(margin) < 20) {
     return 'Sua margem está baixa hoje. Vale revisar preços, desperdícios e fornecedores.'
   }
 
@@ -180,18 +218,17 @@ function renderCategories(expenses) {
 }
 
 async function loadDashboard() {
-  const user = await requireUser()
-  if (!user) return
+  const profile = await getProfile(currentUser.id)
+  const business = await getBusiness(currentUser.id)
 
+  currentBusiness = business
+
+  setText('user-name', profile?.nome || currentUser.email || 'Usuário')
+  setText('business-name', business?.nome || 'Seu negócio')
   setText('today-date', formatDateBR(new Date()))
 
-  const profile = await getProfile(user.id)
-  const business = await getBusiness(user.id)
-
-  setText('user-name', profile?.nome || user.email || 'Usuário')
-
   if (!business) {
-    alert('Empresa não encontrada para este usuário.')
+    showTopMessage('Empresa não encontrada para este usuário.', 'error')
     return
   }
 
@@ -214,11 +251,13 @@ async function loadDashboard() {
   ])
 
   if (expensesError) {
-    console.error('Erro ao buscar gastos:', expensesError.message)
+    showTopMessage('Erro ao buscar gastos.', 'error')
+    return
   }
 
   if (cashError) {
-    console.error('Erro ao buscar faturamentos:', cashError.message)
+    showTopMessage('Erro ao buscar faturamento.', 'error')
+    return
   }
 
   const safeExpenses = expenses || []
@@ -273,28 +312,148 @@ async function handleLogout() {
   window.location.href = 'index.html'
 }
 
-function bindEvents() {
-  const logoutBtn = document.getElementById('logout-btn')
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', handleLogout)
-  }
+function bindModalEvents() {
+  const expenseModal = document.getElementById('expense-modal')
+  const cashModal = document.getElementById('cash-modal')
 
   const addExpenseBtn = document.getElementById('add-expense-btn')
-  if (addExpenseBtn) {
-    addExpenseBtn.addEventListener('click', () => {
-      alert('Próximo passo: abrir popup de gasto.')
-    })
-  }
+  const openExpenseSecondary = document.getElementById('open-expense-secondary')
+  const closeExpenseModal = document.getElementById('close-expense-modal')
+  const cancelExpenseBtn = document.getElementById('cancel-expense-btn')
 
   const addCashBtn = document.getElementById('add-cash-btn')
-  if (addCashBtn) {
-    addCashBtn.addEventListener('click', () => {
-      alert('Próximo passo: abrir popup de faturamento.')
-    })
+  const closeCashModal = document.getElementById('close-cash-modal')
+  const cancelCashBtn = document.getElementById('cancel-cash-btn')
+
+  const expenseDate = document.getElementById('expense-data')
+  const cashDate = document.getElementById('cash-data')
+
+  expenseDate.value = getTodayISO()
+  cashDate.value = getTodayISO()
+
+  addExpenseBtn?.addEventListener('click', () => openModal(expenseModal))
+  openExpenseSecondary?.addEventListener('click', () => openModal(expenseModal))
+  closeExpenseModal?.addEventListener('click', () => closeModal(expenseModal))
+  cancelExpenseBtn?.addEventListener('click', () => closeModal(expenseModal))
+
+  addCashBtn?.addEventListener('click', () => openModal(cashModal))
+  closeCashModal?.addEventListener('click', () => closeModal(cashModal))
+  cancelCashBtn?.addEventListener('click', () => closeModal(cashModal))
+
+  expenseModal?.addEventListener('click', (e) => {
+    if (e.target === expenseModal) closeModal(expenseModal)
+  })
+
+  cashModal?.addEventListener('click', (e) => {
+    if (e.target === cashModal) closeModal(cashModal)
+  })
+}
+
+function bindFormEvents() {
+  const expenseForm = document.getElementById('expense-form')
+  const cashForm = document.getElementById('cash-form')
+
+  expenseForm?.addEventListener('submit', handleExpenseSubmit)
+  cashForm?.addEventListener('submit', handleCashSubmit)
+}
+
+async function handleExpenseSubmit(e) {
+  e.preventDefault()
+
+  const descricao = document.getElementById('expense-descricao').value.trim()
+  const categoria = document.getElementById('expense-categoria').value
+  const valor = document.getElementById('expense-valor').value
+  const dataReferencia = document.getElementById('expense-data').value
+  const saveBtn = document.getElementById('save-expense-btn')
+  const modal = document.getElementById('expense-modal')
+
+  if (!descricao || !categoria || !valor || !dataReferencia) {
+    showTopMessage('Preencha todos os campos do gasto.', 'error')
+    return
   }
+
+  saveBtn.disabled = true
+  saveBtn.textContent = 'Salvando...'
+
+  const { error } = await supabase.from('expenses').insert({
+    business_id: currentBusiness.id,
+    descricao,
+    categoria,
+    valor: Number(valor),
+    data_referencia: dataReferencia
+  })
+
+  saveBtn.disabled = false
+  saveBtn.textContent = 'Salvar gasto'
+
+  if (error) {
+    showTopMessage('Erro ao salvar gasto: ' + error.message, 'error')
+    return
+  }
+
+  document.getElementById('expense-form').reset()
+  document.getElementById('expense-data').value = getTodayISO()
+  closeModal(modal)
+  showTopMessage('Gasto salvo com sucesso.')
+  await loadDashboard()
+}
+
+async function handleCashSubmit(e) {
+  e.preventDefault()
+
+  const valor = document.getElementById('cash-valor').value
+  const observacao = document.getElementById('cash-observacao').value.trim()
+  const dataReferencia = document.getElementById('cash-data').value
+  const saveBtn = document.getElementById('save-cash-btn')
+  const modal = document.getElementById('cash-modal')
+
+  if (!valor || !dataReferencia) {
+    showTopMessage('Preencha valor e data do faturamento.', 'error')
+    return
+  }
+
+  saveBtn.disabled = true
+  saveBtn.textContent = 'Salvando...'
+
+  const { error } = await supabase.from('cash_entries').insert({
+    business_id: currentBusiness.id,
+    valor: Number(valor),
+    observacao,
+    data_referencia: dataReferencia
+  })
+
+  saveBtn.disabled = false
+  saveBtn.textContent = 'Salvar faturamento'
+
+  if (error) {
+    showTopMessage('Erro ao salvar faturamento: ' + error.message, 'error')
+    return
+  }
+
+  document.getElementById('cash-form').reset()
+  document.getElementById('cash-data').value = getTodayISO()
+  closeModal(modal)
+  showTopMessage('Faturamento salvo com sucesso.')
+  await loadDashboard()
+}
+
+function bindGeneralEvents() {
+  document.getElementById('logout-btn')?.addEventListener('click', handleLogout)
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  bindEvents()
+  const loaded = await waitForSupabase()
+
+  if (!loaded) {
+    alert('Erro ao carregar Supabase.')
+    return
+  }
+
+  currentUser = await requireUser()
+  if (!currentUser) return
+
+  bindGeneralEvents()
+  bindModalEvents()
+  bindFormEvents()
   await loadDashboard()
 })
