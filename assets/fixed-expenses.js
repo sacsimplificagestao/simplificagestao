@@ -205,6 +205,32 @@ function openEditModal(item) {
   openModal(editModal)
 }
 
+async function deleteFixedExpenseAndGeneratedEntries(item) {
+  const { error: deleteGeneratedError } = await supabase
+    .from('expenses')
+    .delete()
+    .eq('business_id', currentBusiness.id)
+    .eq('fixed_expense_id', item.id)
+
+  if (deleteGeneratedError) {
+    showTopMessage('Erro ao excluir os gastos automáticos vinculados.', 'error')
+    return false
+  }
+
+  const { error: deleteFixedError } = await supabase
+    .from('fixed_expenses')
+    .delete()
+    .eq('id', item.id)
+    .eq('business_id', currentBusiness.id)
+
+  if (deleteFixedError) {
+    showTopMessage('Erro ao excluir gasto fixo.', 'error')
+    return false
+  }
+
+  return true
+}
+
 function bindRowActions() {
   document.querySelectorAll('.edit-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -237,23 +263,20 @@ function bindRowActions() {
 
   document.querySelectorAll('.delete-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
-      const confirmed = confirm('Deseja realmente excluir este gasto fixo?')
+      const item = fixedExpenses.find(entry => String(entry.id) === String(btn.dataset.id))
+      if (!item) return
+
+      const confirmed = confirm(
+        'Ao excluir este gasto fixo, todos os gastos automáticos já lançados por ele também serão apagados. Deseja continuar?'
+      )
       if (!confirmed) return
 
-      const { error } = await supabase
-        .from('fixed_expenses')
-        .delete()
-        .eq('id', btn.dataset.id)
-        .eq('business_id', currentBusiness.id)
-
-      if (error) {
-        showTopMessage('Erro ao excluir gasto fixo.', 'error')
-        return
-      }
+      const deleted = await deleteFixedExpenseAndGeneratedEntries(item)
+      if (!deleted) return
 
       await loadFixedExpenses()
       applyLocalFilters()
-      showTopMessage('Gasto fixo excluído com sucesso.')
+      showTopMessage('Gasto fixo e lançamentos automáticos excluídos com sucesso.')
     })
   })
 }
