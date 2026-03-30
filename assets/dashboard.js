@@ -6,6 +6,8 @@ let currentUser = null
 let currentBusiness = null
 let expenseCategories = []
 
+const NEW_CATEGORY_VALUE = '__new_category__'
+
 function formatCurrency(value) {
   return Number(value || 0).toLocaleString('pt-BR', {
     style: 'currency',
@@ -76,6 +78,25 @@ function closeModal(modal) {
   document.body.classList.remove('overflow-hidden')
 }
 
+function normalizeCategoryName(value) {
+  return String(value || '').trim().replace(/\s+/g, ' ')
+}
+
+function toggleNewCategoryField() {
+  const select = document.getElementById('expense-categoria')
+  const wrapper = document.getElementById('new-category-wrapper')
+  const input = document.getElementById('expense-new-category')
+
+  if (!select || !wrapper || !input) return
+
+  if (select.value === NEW_CATEGORY_VALUE) {
+    wrapper.classList.remove('hidden')
+  } else {
+    wrapper.classList.add('hidden')
+    input.value = ''
+  }
+}
+
 async function waitForSupabase() {
   for (let i = 0; i < 50; i++) {
     if (window.supabase) {
@@ -143,19 +164,43 @@ function populateExpenseCategorySelect() {
   const select = document.getElementById('expense-categoria')
   if (!select) return
 
-  if (!expenseCategories.length) {
-    select.innerHTML = `
-      <option value="">Nenhuma categoria cadastrada</option>
-    `
-    return
-  }
-
   select.innerHTML = `
     <option value="">Selecione</option>
     ${expenseCategories.map(category => `
       <option value="${category.nome}">${category.nome}</option>
     `).join('')}
+    <option value="${NEW_CATEGORY_VALUE}">+ Adicionar nova categoria</option>
   `
+
+  toggleNewCategoryField()
+}
+
+async function createExpenseCategoryIfNeeded(rawName) {
+  const nome = normalizeCategoryName(rawName)
+
+  if (!nome) return null
+
+  const existing = expenseCategories.find(item =>
+    normalizeCategoryName(item.nome).toLowerCase() === nome.toLowerCase()
+  )
+
+  if (existing) {
+    return existing.nome
+  }
+
+  const { error } = await supabase
+    .from('expense_categories')
+    .insert({
+      business_id: currentBusiness.id,
+      nome
+    })
+
+  if (error) {
+    throw new Error('Erro ao criar nova categoria: ' + error.message)
+  }
+
+  await loadExpenseCategories()
+  return nome
 }
 
 function buildSummary({
@@ -475,6 +520,7 @@ function bindModalEvents() {
 
   const expenseDate = document.getElementById('expense-data')
   const cashDate = document.getElementById('cash-data')
+  const expenseCategorySelect = document.getElementById('expense-categoria')
 
   if (expenseDate) expenseDate.value = getTodayISO()
   if (cashDate) cashDate.value = getTodayISO()
@@ -495,6 +541,8 @@ function bindModalEvents() {
   cashModal?.addEventListener('click', (e) => {
     if (e.target === cashModal) closeModal(cashModal)
   })
+
+  expenseCategorySelect?.addEventListener('change', toggleNewCategoryField)
 }
 
 function bindFormEvents() {
@@ -514,13 +562,32 @@ async function handleExpenseSubmit(e) {
   }
 
   const descricao = document.getElementById('expense-descricao').value.trim()
-  const categoria = document.getElementById('expense-categoria').value
+  const categoriaSelecionada = document.getElementById('expense-categoria').value
+  const novaCategoria = document.getElementById('expense-new-category').value
   const valor = document.getElementById('expense-valor').value
   const dataReferencia = document.getElementById('expense-data').value
   const saveBtn = document.getElementById('save-expense-btn')
   const modal = document.getElementById('expense-modal')
 
-  if (!descricao || !categoria || !valor || !dataReferencia) {
+  let categoriaFinal = categoriaSelecionada
+
+  if (categoriaSelecionada === NEW_CATEGORY_VALUE) {
+    const nomeNormalizado = normalizeCategoryName(novaCategoria)
+
+    if (!nomeNormalizado) {
+      showTopMessage('Digite o nome da nova categoria.', 'error')
+      return
+    }
+
+    try {
+      categoriaFinal = await createExpenseCategoryIfNeeded(nomeNormalizado)
+    } catch (error) {
+      showTopMessage(error.message, 'error')
+      return
+    }
+  }
+
+  if (!descricao || !categoriaFinal || !valor || !dataReferencia) {
     showTopMessage('Preencha todos os campos do gasto.', 'error')
     return
   }
@@ -531,7 +598,7 @@ async function handleExpenseSubmit(e) {
   const { error } = await supabase.from('expenses').insert({
     business_id: currentBusiness.id,
     descricao,
-    categoria,
+    categoria: categoriaFinal,
     valor: Number(valor),
     data_referencia: dataReferencia,
     gerado_automaticamente: false
@@ -547,7 +614,9 @@ async function handleExpenseSubmit(e) {
 
   document.getElementById('expense-form').reset()
   document.getElementById('expense-data').value = getTodayISO()
+  document.getElementById('expense-new-category').value = ''
   populateExpenseCategorySelect()
+  toggleNewCategoryField()
   closeModal(modal)
   showTopMessage('Gasto salvo com sucesso.')
   await loadDashboard()
