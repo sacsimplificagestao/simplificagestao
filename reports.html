@@ -196,8 +196,6 @@
     import { supabase } from './assets/supabase.js'
     import { renderMenu } from './assets/menu.js'
 
-    await renderMenu('Relatórios')
-
     let currentUser = null
     let currentBusiness = null
 
@@ -247,7 +245,11 @@
     }
 
     function getTodayISO() {
-      return new Date().toISOString().split('T')[0]
+      const now = new Date()
+      const y = now.getFullYear()
+      const m = String(now.getMonth() + 1).padStart(2, '0')
+      const d = String(now.getDate()).padStart(2, '0')
+      return `${y}-${m}-${d}`
     }
 
     function getFirstDayOfMonthISO() {
@@ -260,7 +262,10 @@
     function getDaysAgoISO(days) {
       const date = new Date()
       date.setDate(date.getDate() - days)
-      return date.toISOString().split('T')[0]
+      const y = date.getFullYear()
+      const m = String(date.getMonth() + 1).padStart(2, '0')
+      const d = String(date.getDate()).padStart(2, '0')
+      return `${y}-${m}-${d}`
     }
 
     function applyDefaultPeriodUI() {
@@ -318,7 +323,10 @@
       const last = new Date(end + 'T00:00:00')
 
       while (current <= last) {
-        dates.push(current.toISOString().split('T')[0])
+        const y = current.getFullYear()
+        const m = String(current.getMonth() + 1).padStart(2, '0')
+        const d = String(current.getDate()).padStart(2, '0')
+        dates.push(`${y}-${m}-${d}`)
         current.setDate(current.getDate() + 1)
       }
 
@@ -329,7 +337,9 @@
       const container = document.getElementById('daily-results')
       if (!container) return
 
-      if (!dailyRows.length) {
+      const validRows = dailyRows.filter(item => item.cash > 0 || item.expenses > 0)
+
+      if (!validRows.length) {
         container.innerHTML = `
           <div class="border border-dashed border-gray-300 rounded-2xl p-6 text-center text-gray-500">
             Nenhum dado encontrado neste período.
@@ -338,7 +348,7 @@
         return
       }
 
-      container.innerHTML = dailyRows.map(day => {
+      container.innerHTML = validRows.map(day => {
         const lucroClass = day.profit >= 0 ? 'text-green-600' : 'text-red-600'
 
         return `
@@ -457,9 +467,10 @@
         }
       }
 
-      const daysWithCash = dailyRows.filter(item => item.cash > 0).length
-      const daysWithExpenses = dailyRows.filter(item => item.expenses > 0).length
-      const totalDays = dailyRows.length || 1
+      const validRows = dailyRows.filter(item => item.cash > 0 || item.expenses > 0)
+      const daysWithCash = validRows.filter(item => item.cash > 0).length
+      const daysWithExpenses = validRows.filter(item => item.expenses > 0).length
+      const totalDays = validRows.length || 1
 
       setText('days-with-cash', String(daysWithCash))
       setText('days-with-expenses', String(daysWithExpenses))
@@ -600,21 +611,31 @@
       )
     }
 
-    periodSelect.addEventListener('change', syncDatesWithPeriod)
-    applyFiltersBtn.addEventListener('click', loadReport)
+    async function initPage() {
+      await renderMenu('Relatórios')
 
-    resetFiltersBtn.addEventListener('click', async () => {
+      currentUser = await requireUser()
+      if (!currentUser) return
+
+      currentBusiness = await getBusiness(currentUser.id)
+      if (!currentBusiness) {
+        showTopMessage('Empresa não encontrada para este usuário.', 'error')
+        return
+      }
+
       applyDefaultPeriodUI()
+      periodSelect.addEventListener('change', syncDatesWithPeriod)
+      applyFiltersBtn.addEventListener('click', loadReport)
+
+      resetFiltersBtn.addEventListener('click', async () => {
+        applyDefaultPeriodUI()
+        await loadReport()
+      })
+
       await loadReport()
-    })
+    }
 
-    currentUser = await requireUser()
-    if (!currentUser) return
-
-    currentBusiness = await getBusiness(currentUser.id)
-
-    applyDefaultPeriodUI()
-    await loadReport()
+    initPage()
   </script>
 </body>
 </html>
