@@ -7,109 +7,116 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-white text-gray-900">
+<body class="min-h-screen bg-gradient-to-br from-white via-green-50 to-white flex items-center justify-center p-6">
 
-  <!-- HERO -->
-  <section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-white px-6">
-    <div class="max-w-5xl text-center">
+  <div class="w-full max-w-md">
 
-      <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-        Pare de perder dinheiro<br>
-        <span class="text-green-600">sem perceber</span>
-      </h1>
+    <!-- LOGO / TÍTULO -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold mb-2">Simplifica Gestão</h1>
+      <p class="text-gray-500">Controle simples, lucro claro</p>
+    </div>
 
-      <p class="text-lg md:text-xl text-gray-600 mb-8">
-        Tire uma foto da nota, registre seu caixa e descubra
-        se seu negócio está dando lucro de verdade.
-      </p>
+    <!-- CARD -->
+    <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-200">
 
-      <div class="flex flex-col md:flex-row gap-4 justify-center">
-        <a href="#" class="bg-green-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-green-700 transition">
-          Começar agora
-        </a>
-
-        <a href="#" class="border border-gray-300 px-8 py-4 rounded-xl text-lg hover:bg-gray-100 transition">
-          Ver como funciona
-        </a>
+      <!-- TABS -->
+      <div class="flex mb-6 bg-gray-100 rounded-xl p-1">
+        <button id="tab-login" class="w-full py-2 rounded-lg font-semibold bg-white shadow">
+          Entrar
+        </button>
+        <button id="tab-register" class="w-full py-2 rounded-lg font-semibold text-gray-500">
+          Criar conta
+        </button>
       </div>
+
+      <!-- LOGIN -->
+      <form id="login-form" class="space-y-4">
+
+        <input id="login-email" type="email" placeholder="Seu email"
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-600">
+
+        <input id="login-password" type="password" placeholder="Senha"
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-600">
+
+        <button type="submit"
+          class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition">
+          Entrar
+        </button>
+      </form>
+
+      <!-- REGISTER -->
+      <form id="register-form" class="space-y-4 hidden">
+
+        <input id="register-name" type="text" placeholder="Seu nome"
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-600">
+
+        <input id="register-email" type="email" placeholder="Seu email"
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-600">
+
+        <input id="register-password" type="password" placeholder="Senha"
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-600">
+
+        <input id="register-business" type="text" placeholder="Nome do seu negócio"
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-600">
+
+        <button type="submit"
+          class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition">
+          Criar conta
+        </button>
+      </form>
 
     </div>
-  </section>
 
-  <!-- COMO FUNCIONA -->
-  <section class="py-20 px-6 bg-white">
-    <div class="max-w-6xl mx-auto text-center">
+  </div>
 
-      <h2 class="text-3xl font-bold mb-12">
-        Simples assim 👇
-      </h2>
+  <!-- SCRIPTS -->
+  <script type="module" src="assets/supabase.js"></script>
+  <script type="module" src="assets/auth.js"></script>
 
-      <div class="grid md:grid-cols-3 gap-8">
+  <script>
+    const loginTab = document.getElementById('tab-login')
+    const registerTab = document.getElementById('tab-register')
 
-        <div class="p-6 border rounded-2xl">
-          <h3 class="text-xl font-semibold mb-2">1. Tire a foto</h3>
-          <p class="text-gray-600">Envie a nota fiscal do seu gasto</p>
-        </div>
+    const loginForm = document.getElementById('login-form')
+    const registerForm = document.getElementById('register-form')
 
-        <div class="p-6 border rounded-2xl">
-          <h3 class="text-xl font-semibold mb-2">2. Registre o caixa</h3>
-          <p class="text-gray-600">Informe quanto entrou no dia</p>
-        </div>
+    loginTab.onclick = () => {
+      loginForm.classList.remove('hidden')
+      registerForm.classList.add('hidden')
 
-        <div class="p-6 border rounded-2xl">
-          <h3 class="text-xl font-semibold mb-2">3. Veja o lucro</h3>
-          <p class="text-gray-600">Receba análise clara e automática</p>
-        </div>
+      loginTab.classList.add('bg-white', 'shadow')
+      registerTab.classList.remove('bg-white', 'shadow')
+    }
 
-      </div>
+    registerTab.onclick = () => {
+      loginForm.classList.add('hidden')
+      registerForm.classList.remove('hidden')
 
-    </div>
-  </section>
+      registerTab.classList.add('bg-white', 'shadow')
+      loginTab.classList.remove('bg-white', 'shadow')
+    }
 
-  <!-- BENEFÍCIOS -->
-  <section class="py-20 px-6 bg-gray-50">
-    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
 
-      <div>
-        <h2 class="text-3xl font-bold mb-6">
-          Você sabe quanto realmente lucra?
-        </h2>
+      const email = document.getElementById('login-email').value
+      const password = document.getElementById('login-password').value
 
-        <ul class="space-y-4 text-gray-600 text-lg">
-          <li>✔ Descubra onde está perdendo dinheiro</li>
-          <li>✔ Controle seus custos sem planilhas complicadas</li>
-          <li>✔ Tenha clareza do seu lucro todos os dias</li>
-          <li>✔ Tome decisões melhores para crescer</li>
-        </ul>
-      </div>
+      await window.signIn(email, password)
+    })
 
-      <div class="bg-white p-8 rounded-2xl shadow">
-        <p class="text-gray-500 mb-4">Resumo do dia</p>
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
 
-        <div class="text-lg mb-2">Faturamento: <b>R$ 2.300</b></div>
-        <div class="text-lg mb-2">Gastos: <b>R$ 1.400</b></div>
-        <div class="text-xl font-bold text-green-600 mb-4">
-          Lucro: R$ 900
-        </div>
+      const name = document.getElementById('register-name').value
+      const email = document.getElementById('register-email').value
+      const password = document.getElementById('register-password').value
+      const business = document.getElementById('register-business').value
 
-        <p class="text-sm text-gray-500">
-          ⚠️ Seus custos com bebidas estão altos hoje
-        </p>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- CTA FINAL -->
-  <section class="py-20 px-6 text-center">
-    <h2 class="text-3xl font-bold mb-6">
-      Comece a controlar seu lucro hoje
-    </h2>
-
-    <a href="#" class="bg-green-600 text-white px-10 py-5 rounded-xl text-lg font-semibold hover:bg-green-700 transition">
-      Criar conta grátis
-    </a>
-  </section>
+      await window.signUp(email, password, name, business)
+    })
+  </script>
 
 </body>
 </html>
