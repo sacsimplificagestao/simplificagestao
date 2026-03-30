@@ -48,6 +48,7 @@ function createMenuHTML(userName = 'Usuário', businessName = 'Meu Negócio') {
     <aside id="sidebar" class="fixed top-0 left-0 h-screen w-72 bg-white border-r border-gray-200 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-sm">
       <div class="h-full flex flex-col">
 
+        <!-- topo -->
         <div class="p-6 border-b border-gray-100">
           <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-2xl bg-green-600 text-white flex items-center justify-center font-bold text-lg shadow">
@@ -60,12 +61,15 @@ function createMenuHTML(userName = 'Usuário', businessName = 'Meu Negócio') {
           </div>
         </div>
 
+        <!-- menu -->
         <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
           ${menuItem('Dashboard', 'dashboard.html', '📊')}
           ${menuItem('Gastos', 'expenses.html', '💸')}
           ${menuItem('Faturamento', 'cash.html', '💰')}
+          ${menuItem('Relatórios', 'reports.html', '📈')}
         </nav>
 
+        <!-- footer -->
         <div class="p-4 border-t border-gray-100">
           <div class="bg-gray-50 rounded-2xl p-4 mb-3">
             <p class="text-sm text-gray-500">Logado como</p>
@@ -79,6 +83,7 @@ function createMenuHTML(userName = 'Usuário', businessName = 'Meu Negócio') {
       </div>
     </aside>
 
+    <!-- overlay mobile -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-30 hidden md:hidden"></div>
   `
 }
