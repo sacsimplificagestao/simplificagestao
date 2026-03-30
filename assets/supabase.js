@@ -1,9 +1,9 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-const supabaseUrl = 'COLE_SUA_URL_AQUI'
-const supabaseKey = 'COLE_SUA_ANON_KEY_AQUI'
+const supabaseUrl = 'https://jtcwrrcozunjskuwswmq.supabase.co'
+const supabaseKey = 'sb_publishable_m4XaI4R9Ixr6Kuka4Wz9Pw_jnsavoZU'
 
 export const supabase = createClient(supabaseUrl, supabaseKey)
 
-// deixar global (facilita)
+// deixa global
 window.supabase = supabase
