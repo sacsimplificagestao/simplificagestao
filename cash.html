@@ -18,17 +18,16 @@
       <p class="text-gray-500 mt-1">Gerencie todas as suas entradas de caixa em um só lugar.</p>
     </div>
 
-    <!-- filtros -->
     <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 mb-6">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-600 mb-1">Buscar</label>
-          <input id="filter-search" type="text" placeholder="Descrição..." class="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-green-500" />
+          <input id="filter-search" type="text" placeholder="Observação..." class="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-green-500" />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-600 mb-1">Categoria</label>
-          <input id="filter-category" type="text" placeholder="Ex: Venda" class="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-green-500" />
+          <input id="filter-category" type="text" placeholder="Opcional" class="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-green-500" />
         </div>
 
         <div>
@@ -52,7 +51,6 @@
       </div>
     </section>
 
-    <!-- resumo -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
         <p class="text-sm text-gray-500">Total de faturamento</p>
@@ -70,7 +68,6 @@
       </div>
     </section>
 
-    <!-- tabela -->
     <section class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
       <div class="p-5 border-b border-gray-100 flex items-center justify-between">
         <div>
@@ -86,8 +83,7 @@
           <thead class="bg-gray-50">
             <tr class="text-left text-sm text-gray-600">
               <th class="px-5 py-4">Data</th>
-              <th class="px-5 py-4">Descrição</th>
-              <th class="px-5 py-4">Categoria</th>
+              <th class="px-5 py-4">Observação</th>
               <th class="px-5 py-4">Valor</th>
               <th class="px-5 py-4">Ações</th>
             </tr>
@@ -102,7 +98,6 @@
     </section>
   </main>
 
-  <!-- modal editar -->
   <div id="edit-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4">
     <div class="bg-white rounded-3xl w-full max-w-xl p-6 shadow-2xl">
       <div class="flex items-center justify-between mb-6">
@@ -114,20 +109,13 @@
         <input type="hidden" id="edit-id" />
 
         <div>
-          <label class="block text-sm font-medium text-gray-600 mb-1">Descrição</label>
-          <input id="edit-description" type="text" class="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-green-500" required />
+          <label class="block text-sm font-medium text-gray-600 mb-1">Observação</label>
+          <input id="edit-observacao" type="text" class="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-green-500" />
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-600 mb-1">Categoria</label>
-            <input id="edit-category" type="text" class="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-green-500" />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-600 mb-1">Valor</label>
-            <input id="edit-amount" type="number" step="0.01" class="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-green-500" required />
-          </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">Valor</label>
+          <input id="edit-amount" type="number" step="0.01" class="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-green-500" required />
         </div>
 
         <div>
@@ -194,15 +182,15 @@
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
-        window.location.href = 'login.html'
+        window.location.href = 'index.html'
         return null
       }
 
       const { data: business, error } = await supabase
         .from('businesses')
         .select('id')
-        .eq('user_id', user.id)
-        .single()
+        .eq('owner_user_id', user.id)
+        .maybeSingle()
 
       if (error || !business) {
         alert('Empresa não encontrada.')
@@ -213,7 +201,7 @@
     }
 
     function updateSummary(items) {
-      const total = items.reduce((sum, item) => sum + Number(item.amount || 0), 0)
+      const total = items.reduce((sum, item) => sum + Number(item.valor || 0), 0)
       const count = items.length
       const avg = count > 0 ? total / count : 0
 
@@ -239,10 +227,9 @@
         tr.className = 'border-t border-gray-100'
 
         tr.innerHTML = `
-          <td class="px-5 py-4">${formatDate(item.entry_date)}</td>
-          <td class="px-5 py-4 font-medium text-gray-900">${item.description || '-'}</td>
-          <td class="px-5 py-4 text-gray-600">${item.category || '-'}</td>
-          <td class="px-5 py-4 font-semibold text-green-600">${formatCurrency(item.amount)}</td>
+          <td class="px-5 py-4">${formatDate(item.data_referencia)}</td>
+          <td class="px-5 py-4 font-medium text-gray-900">${item.observacao || '-'}</td>
+          <td class="px-5 py-4 font-semibold text-green-600">${formatCurrency(item.valor)}</td>
           <td class="px-5 py-4">
             <div class="flex gap-2">
               <button data-id="${item.id}" class="edit-btn bg-blue-50 hover:bg-blue-100 text-blue-600 px-4 py-2 rounded-xl font-medium transition">
@@ -270,13 +257,13 @@
       const filtered = cashEntries.filter(item => {
         const matchesSearch =
           !search ||
-          (item.description || '').toLowerCase().includes(search)
+          (item.observacao || '').toLowerCase().includes(search)
 
         const matchesCategory =
           !category ||
-          (item.category || '').toLowerCase().includes(category)
+          ((item.categoria || '').toLowerCase().includes(category))
 
-        const itemDate = item.entry_date || ''
+        const itemDate = item.data_referencia || ''
         const matchesStart = !start || itemDate >= start
         const matchesEnd = !end || itemDate <= end
 
@@ -296,7 +283,7 @@
         .from('cash_entries')
         .select('*')
         .eq('business_id', currentBusinessId)
-        .order('entry_date', { ascending: false })
+        .order('data_referencia', { ascending: false })
         .order('created_at', { ascending: false })
 
       loading.classList.add('hidden')
@@ -314,10 +301,9 @@
 
     function openEditModal(item) {
       document.getElementById('edit-id').value = item.id
-      document.getElementById('edit-description').value = item.description || ''
-      document.getElementById('edit-category').value = item.category || ''
-      document.getElementById('edit-amount').value = item.amount || ''
-      document.getElementById('edit-date').value = item.entry_date || ''
+      document.getElementById('edit-observacao').value = item.observacao || ''
+      document.getElementById('edit-amount').value = item.valor || ''
+      document.getElementById('edit-date').value = item.data_referencia || ''
 
       editModal.classList.remove('hidden')
       editModal.classList.add('flex')
@@ -365,18 +351,16 @@
       e.preventDefault()
 
       const id = document.getElementById('edit-id').value
-      const description = document.getElementById('edit-description').value.trim()
-      const category = document.getElementById('edit-category').value.trim()
-      const amount = parseFloat(document.getElementById('edit-amount').value || '0')
-      const entry_date = document.getElementById('edit-date').value
+      const observacao = document.getElementById('edit-observacao').value.trim()
+      const valor = parseFloat(document.getElementById('edit-amount').value || '0')
+      const data_referencia = document.getElementById('edit-date').value
 
       const { error } = await supabase
         .from('cash_entries')
         .update({
-          description,
-          category,
-          amount,
-          entry_date
+          observacao,
+          valor,
+          data_referencia
         })
         .eq('id', id)
         .eq('business_id', currentBusinessId)
