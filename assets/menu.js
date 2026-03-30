@@ -47,7 +47,7 @@ function createMenuHTML(userName = 'Usuário', businessName = 'Meu Negócio') {
   return `
     <aside id="sidebar" class="fixed top-0 left-0 h-screen w-72 bg-white border-r border-gray-200 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-sm">
       <div class="h-full flex flex-col">
-        
+
         <div class="p-6 border-b border-gray-100">
           <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-2xl bg-green-600 text-white flex items-center justify-center font-bold text-lg shadow">
@@ -55,7 +55,7 @@ function createMenuHTML(userName = 'Usuário', businessName = 'Meu Negócio') {
             </div>
             <div>
               <h1 class="text-lg font-bold text-gray-900">Simplifica Gestão</h1>
-              <p class="text-sm text-gray-500">${businessName}</p>
+              <p class="text-sm text-gray-500 truncate">${businessName}</p>
             </div>
           </div>
         </div>
