@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configurações - Simplifica Gestão</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-white via-green-50 to-white text-gray-900 min-h-screen">
+
+  <div id="menu-container"></div>
+
+  <main class="md:ml-72 min-h-screen p-6 md:p-10">
+    <div id="mobile-topbar-container"></div>
+
+    <section class="mb-8">
+      <p class="text-sm uppercase tracking-wide text-green-600 font-semibold mb-2">Configurações</p>
+      <h1 class="text-3xl md:text-4xl font-bold mb-2">Ajustes da conta</h1>
+      <p class="text-gray-600">Atualize seus dados e mantenha seu negócio organizado.</p>
+    </section>
+
+    <section id="top-message" class="hidden mb-6 rounded-2xl px-4 py-4 text-sm border"></section>
+
+    <section class="grid xl:grid-cols-3 gap-6">
+      <div class="xl:col-span-2 space-y-6">
+
+        <div class="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold">Perfil</h2>
+            <p class="text-sm text-gray-500">Esses dados aparecem no seu ambiente.</p>
+          </div>
+
+          <form id="profile-form" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1">Nome</label>
+              <input
+                id="profile-name"
+                type="text"
+                class="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-green-500"
+                placeholder="Seu nome"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1">Email</label>
+              <input
+                id="profile-email"
+                type="email"
+                class="w-full rounded-xl border border-gray-200 bg-gray-50 text-gray-500 px-4 py-3 outline-none cursor-not-allowed"
+                disabled
+              />
+            </div>
+
+            <div class="pt-2">
+              <button
+                id="save-profile-btn"
+                type="submit"
+                class="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-3 rounded-xl transition"
+              >
+                Salvar perfil
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold">Negócio</h2>
+            <p class="text-sm text-gray-500">Essas informações identificam sua empresa no sistema.</p>
+          </div>
+
+          <form id="business-form" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1">Nome do negócio</label>
+              <input
+                id="business-name"
+                type="text"
+                class="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-green-500"
+                placeholder="Nome do negócio"
+              />
+            </div>
+
+            <div class="pt-2">
+              <button
+                id="save-business-btn"
+                type="submit"
+                class="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-3 rounded-xl transition"
+              >
+                Salvar negócio
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold">Trocar senha</h2>
+            <p class="text-sm text-gray-500">Atualize sua senha de acesso com segurança.</p>
+          </div>
+
+          <form id="password-form" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1">Nova senha</label>
+              <input
+                id="new-password"
+                type="password"
+                class="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-green-500"
+                placeholder="Digite a nova senha"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1">Confirmar nova senha</label>
+              <input
+                id="confirm-password"
+                type="password"
+                class="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-green-500"
+                placeholder="Confirme a nova senha"
+              />
+            </div>
+
+            <div class="pt-2">
+              <button
+                id="save-password-btn"
+                type="submit"
+                class="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-3 rounded-xl transition"
+              >
+                Atualizar senha
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm">
+          <h2 class="text-2xl font-bold mb-4">Resumo da conta</h2>
+
+          <div class="space-y-4">
+            <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+              <p class="text-sm text-gray-500 mb-1">Usuário</p>
+              <p id="summary-user-name" class="font-semibold text-gray-900">--</p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+              <p class="text-sm text-gray-500 mb-1">Email</p>
+              <p id="summary-user-email" class="font-semibold text-gray-900 break-all">--</p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+              <p class="text-sm text-gray-500 mb-1">Negócio</p>
+              <p id="summary-business-name" class="font-semibold text-gray-900">--</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm">
+          <h2 class="text-2xl font-bold mb-4">Dicas</h2>
+
+          <div class="space-y-3 text-sm text-gray-600">
+            <p>• Mantenha o nome do negócio atualizado para facilitar sua organização.</p>
+            <p>• Use uma senha forte com letras, números e símbolos.</p>
+            <p>• O email de login é exibido apenas para consulta nesta tela.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { supabase } from './assets/supabase.js'
+    import { renderMenu } from './assets/menu.js'
+
+    let currentUser = null
+    let currentProfile = null
+    let currentBusiness = null
+
+    const profileForm = document.getElementById('profile-form')
+    const businessForm = document.getElementById('business-form')
+    const passwordForm = document.getElementById('password-form')
+
+    function setText(id, value) {
+      const el = document.getElementById(id)
+      if (el) el.textContent = value
+    }
+
+    function showTopMessage(message, type = 'success') {
+      const box = document.getElementById('top-message')
+      if (!box) return
+
+      box.textContent = message
+      box.className = 'mb-6 rounded-2xl px-4 py-4 text-sm border'
+
+      if (type === 'success') {
+        box.classList.add('bg-green-50', 'text-green-700', 'border-green-200')
+      } else {
+        box.classList.add('bg-red-50', 'text-red-700', 'border-red-200')
+      }
+
+      box.classList.remove('hidden')
+
+      clearTimeout(box._hideTimer)
+      box._hideTimer = setTimeout(() => {
+        box.classList.add('hidden')
+      }, 3500)
+    }
+
+    async function requireUser() {
+      const { data, error } = await supabase.auth.getUser()
+
+      if (error || !data.user) {
+        window.location.href = 'index.html'
+        return null
+      }
+
+      return data.user
+    }
+
+    async function getProfile(userId) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle()
+
+      if (error) return null
+      return data
+    }
+
+    async function getBusiness(userId) {
+      const { data, error } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq('owner_user_id', userId)
+        .maybeSingle()
+
+      if (error) return null
+      return data
+    }
+
+    function fillForms() {
+      document.getElementById('profile-name').value = currentProfile?.nome || ''
+      document.getElementById('profile-email').value = currentProfile?.email || currentUser?.email || ''
+      document.getElementById('business-name').value = currentBusiness?.nome || ''
+
+      setText('summary-user-name', currentProfile?.nome || currentUser?.email || '--')
+      setText('summary-user-email', currentProfile?.email || currentUser?.email || '--')
+      setText('summary-business-name', currentBusiness?.nome || '--')
+    }
+
+    async function refreshData() {
+      currentProfile = await getProfile(currentUser.id)
+      currentBusiness = await getBusiness(currentUser.id)
+      fillForms()
+    }
+
+    profileForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+
+      const button = document.getElementById('save-profile-btn')
+      const nome = document.getElementById('profile-name').value.trim()
+
+      if (!nome) {
+        showTopMessage('Preencha seu nome.', 'error')
+        return
+      }
+
+      button.disabled = true
+      button.textContent = 'Salvando...'
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ nome })
+        .eq('id', currentUser.id)
+
+      button.disabled = false
+      button.textContent = 'Salvar perfil'
+
+      if (error) {
+        showTopMessage('Erro ao salvar perfil: ' + error.message, 'error')
+        return
+      }
+
+      await refreshData()
+      await renderMenu('Configurações')
+      showTopMessage('Perfil atualizado com sucesso.')
+    })
+
+    businessForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+
+      const button = document.getElementById('save-business-btn')
+      const nome = document.getElementById('business-name').value.trim()
+
+      if (!nome) {
+        showTopMessage('Preencha o nome do negócio.', 'error')
+        return
+      }
+
+      if (!currentBusiness) {
+        showTopMessage('Negócio não encontrado.', 'error')
+        return
+      }
+
+      button.disabled = true
+      button.textContent = 'Salvando...'
+
+      const { error } = await supabase
+        .from('businesses')
+        .update({ nome })
+        .eq('id', currentBusiness.id)
+
+      button.disabled = false
+      button.textContent = 'Salvar negócio'
+
+      if (error) {
+        showTopMessage('Erro ao salvar negócio: ' + error.message, 'error')
+        return
+      }
+
+      await refreshData()
+      await renderMenu('Configurações')
+      showTopMessage('Negócio atualizado com sucesso.')
+    })
+
+    passwordForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+
+      const button = document.getElementById('save-password-btn')
+      const newPassword = document.getElementById('new-password').value
+      const confirmPassword = document.getElementById('confirm-password').value
+
+      if (!newPassword || !confirmPassword) {
+        showTopMessage('Preencha os dois campos de senha.', 'error')
+        return
+      }
+
+      if (newPassword.length < 6) {
+        showTopMessage('A nova senha deve ter pelo menos 6 caracteres.', 'error')
+        return
+      }
+
+      if (newPassword !== confirmPassword) {
+        showTopMessage('As senhas não coincidem.', 'error')
+        return
+      }
+
+      button.disabled = true
+      button.textContent = 'Atualizando...'
+
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      })
+
+      button.disabled = false
+      button.textContent = 'Atualizar senha'
+
+      if (error) {
+        showTopMessage('Erro ao atualizar senha: ' + error.message, 'error')
+        return
+      }
+
+      passwordForm.reset()
+      showTopMessage('Senha atualizada com sucesso.')
+    })
+
+    async function initPage() {
+      await renderMenu('Configurações')
+
+      currentUser = await requireUser()
+      if (!currentUser) return
+
+      await refreshData()
+
+      if (!currentProfile) {
+        showTopMessage('Perfil não encontrado.', 'error')
+      }
+
+      if (!currentBusiness) {
+        showTopMessage('Negócio não encontrado.', 'error')
+      }
+    }
+
+    initPage()
+  </script>
+</body>
+</html>
