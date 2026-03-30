@@ -4,6 +4,7 @@ import { generateFixedExpensesIfNeeded } from './fixed-expenses-sync.js'
 let supabase = null
 let currentUser = null
 let currentBusiness = null
+let expenseCategories = []
 
 function formatCurrency(value) {
   return Number(value || 0).toLocaleString('pt-BR', {
@@ -117,6 +118,44 @@ async function getBusiness(userId) {
 
   if (error) return null
   return data
+}
+
+async function loadExpenseCategories() {
+  if (!currentBusiness) return
+
+  const { data, error } = await supabase
+    .from('expense_categories')
+    .select('*')
+    .eq('business_id', currentBusiness.id)
+    .order('nome', { ascending: true })
+
+  if (error) {
+    expenseCategories = []
+    populateExpenseCategorySelect()
+    return
+  }
+
+  expenseCategories = data || []
+  populateExpenseCategorySelect()
+}
+
+function populateExpenseCategorySelect() {
+  const select = document.getElementById('expense-categoria')
+  if (!select) return
+
+  if (!expenseCategories.length) {
+    select.innerHTML = `
+      <option value="">Nenhuma categoria cadastrada</option>
+    `
+    return
+  }
+
+  select.innerHTML = `
+    <option value="">Selecione</option>
+    ${expenseCategories.map(category => `
+      <option value="${category.nome}">${category.nome}</option>
+    `).join('')}
+  `
 }
 
 function buildSummary({
@@ -272,6 +311,8 @@ async function loadDashboard() {
     showTopMessage('Empresa não encontrada para este usuário.', 'error')
     return
   }
+
+  await loadExpenseCategories()
 
   const today = getTodayISO()
   const mesReferencia = getMonthReference()
@@ -506,6 +547,7 @@ async function handleExpenseSubmit(e) {
 
   document.getElementById('expense-form').reset()
   document.getElementById('expense-data').value = getTodayISO()
+  populateExpenseCategorySelect()
   closeModal(modal)
   showTopMessage('Gasto salvo com sucesso.')
   await loadDashboard()
@@ -571,6 +613,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   bindFormEvents()
 
   await generateFixedExpensesIfNeeded()
-
   await loadDashboard()
 })
