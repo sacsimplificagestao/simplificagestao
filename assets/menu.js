@@ -30,16 +30,75 @@ function getCurrentPage() {
 
 function isActive(page) {
   return getCurrentPage() === page
+}
+
+function getMenuItemClass(page) {
+  return isActive(page)
     ? 'bg-green-600 text-white shadow'
     : 'text-gray-700 hover:bg-green-50'
 }
 
+function isExpensesSectionOpen() {
+  const current = getCurrentPage()
+  return [
+    'expenses.html',
+    'fixed-expenses.html',
+    'categories.html'
+  ].includes(current)
+}
+
 function menuItem(label, page, icon) {
   return `
-    <a href="${page}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition ${isActive(page)}">
+    <a href="${page}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition ${getMenuItemClass(page)}">
       <span class="text-lg">${icon}</span>
       <span class="font-medium">${label}</span>
     </a>
+  `
+}
+
+function subMenuItem(label, page) {
+  return `
+    <a href="${page}" class="block px-4 py-2 rounded-lg text-sm transition ${
+      isActive(page)
+        ? 'bg-green-100 text-green-700 font-semibold'
+        : 'text-gray-600 hover:bg-green-50 hover:text-green-700'
+    }">
+      ${label}
+    </a>
+  `
+}
+
+function expensesGroup() {
+  const open = isExpensesSectionOpen()
+
+  return `
+    <div class="space-y-2">
+      <button
+        id="expenses-toggle"
+        type="button"
+        class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition ${open ? 'bg-green-50 text-green-700' : 'text-gray-700 hover:bg-green-50'}"
+      >
+        <div class="flex items-center gap-3">
+          <span class="text-lg">💸</span>
+          <span class="font-medium">Gastos</span>
+        </div>
+        <span
+          id="expenses-arrow"
+          class="text-sm transition-transform duration-300 ${open ? 'rotate-180' : ''}"
+        >
+          ▼
+        </span>
+      </button>
+
+      <div
+        id="expenses-submenu"
+        class="ml-4 pl-4 border-l border-gray-200 space-y-2 overflow-hidden transition-all duration-300 ${open ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}"
+      >
+        ${subMenuItem('Gastos da empresa', 'expenses.html')}
+        ${subMenuItem('Gastos fixos', 'fixed-expenses.html')}
+        ${subMenuItem('Categorias', 'categories.html')}
+      </div>
+    </div>
   `
 }
 
@@ -62,10 +121,9 @@ function createMenuHTML(userName = 'Usuário', businessName = 'Meu Negócio') {
 
         <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
           ${menuItem('Dashboard', 'dashboard.html', '📊')}
-          ${menuItem('Gastos', 'expenses.html', '💸')}
           ${menuItem('Faturamento', 'cash.html', '💰')}
+          ${expensesGroup()}
           ${menuItem('Relatórios', 'reports.html', '📈')}
-          ${menuItem('Gastos fixos', 'fixed-expenses.html', '📌')}
           ${menuItem('Configurações', 'settings.html', '⚙️')}
         </nav>
 
@@ -98,6 +156,32 @@ function createTopbarHTML(pageTitle = 'Painel') {
   `
 }
 
+function bindExpensesSubmenu() {
+  const toggleBtn = document.getElementById('expenses-toggle')
+  const submenu = document.getElementById('expenses-submenu')
+  const arrow = document.getElementById('expenses-arrow')
+
+  if (!toggleBtn || !submenu || !arrow) return
+
+  toggleBtn.addEventListener('click', () => {
+    const isOpen = submenu.classList.contains('max-h-60')
+
+    if (isOpen) {
+      submenu.classList.remove('max-h-60', 'opacity-100')
+      submenu.classList.add('max-h-0', 'opacity-0')
+      arrow.classList.remove('rotate-180')
+      toggleBtn.classList.remove('bg-green-50', 'text-green-700')
+      toggleBtn.classList.add('text-gray-700')
+    } else {
+      submenu.classList.remove('max-h-0', 'opacity-0')
+      submenu.classList.add('max-h-60', 'opacity-100')
+      arrow.classList.add('rotate-180')
+      toggleBtn.classList.add('bg-green-50', 'text-green-700')
+      toggleBtn.classList.remove('text-gray-700')
+    }
+  })
+}
+
 function bindMenuEvents() {
   const sidebar = document.getElementById('sidebar')
   const overlay = document.getElementById('sidebar-overlay')
@@ -124,6 +208,8 @@ function bindMenuEvents() {
       window.location.href = 'index.html'
     })
   }
+
+  bindExpensesSubmenu()
 }
 
 export async function renderMenu(pageTitle = 'Painel') {
