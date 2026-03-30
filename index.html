@@ -20,10 +20,10 @@
 
       <!-- TABS -->
       <div class="flex mb-6 bg-gray-100 rounded-xl p-1">
-        <button id="tab-login" class="w-full py-2 rounded-lg font-semibold bg-white shadow">
+        <button type="button" id="tab-login" class="w-full py-2 rounded-lg font-semibold bg-white shadow">
           Entrar
         </button>
-        <button id="tab-register" class="w-full py-2 rounded-lg font-semibold text-gray-500">
+        <button type="button" id="tab-register" class="w-full py-2 rounded-lg font-semibold text-gray-500">
           Criar conta
         </button>
       </div>
@@ -68,7 +68,6 @@
 
   </div>
 
-  <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
   <script>
@@ -86,15 +85,15 @@
     loginTab.onclick = () => {
       loginForm.classList.remove('hidden')
       registerForm.classList.add('hidden')
-      loginTab.classList.add('bg-white')
-      registerTab.classList.remove('bg-white')
+      loginTab.classList.add('bg-white','shadow')
+      registerTab.classList.remove('bg-white','shadow')
     }
 
     registerTab.onclick = () => {
       loginForm.classList.add('hidden')
       registerForm.classList.remove('hidden')
-      registerTab.classList.add('bg-white')
-      loginTab.classList.remove('bg-white')
+      registerTab.classList.add('bg-white','shadow')
+      loginTab.classList.remove('bg-white','shadow')
     }
 
     loginForm.addEventListener('submit', async (e) => {
